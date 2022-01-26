@@ -14,6 +14,7 @@ framerate = 60
 
 while not finish:
 	while not game_over:
+		# btw this sort of system might be a bad way of going about things
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				game_over = True
@@ -23,14 +24,13 @@ while not finish:
 
 		if step <= 0:
 			game_over = board.next_step()
+			if game_over:
+				board.display_game_over()
 			step = framerate / (base_speed * (2 ** (board.hud.score // 100)))
 		else:
 			step -= 1
 
 		clock.tick(framerate)
-
-	if not(finish):
-		board.display_game_over()
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -41,6 +41,4 @@ while not finish:
 			elif event.key == pygame.K_r:
 				board.reset()
 				game_over = False
-
 pygame.quit()
-quit()

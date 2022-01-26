@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-class Snake():
+
+class Snake:
 
 	M_LEFT = 1
 	M_UP = 2
@@ -40,6 +41,7 @@ class Snake():
 
 		new_pos = [self.snake_pos[0] + self.move_modif]
 		for i in range(len(self.snake_pos) - 1):
+			# noinspection PyUnresolvedReferences
 			new_pos.append(self.snake_pos[i])
 
 		self.snake_pos = new_pos
