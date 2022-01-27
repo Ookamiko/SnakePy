@@ -5,8 +5,8 @@ from Models.snake import Snake
 from Models.hud import Hud
 from Models.arena import Arena
 
-class Board():
 
+class Board:
 	HUD_HEIGHT = 50
 	DEFAULT_BCKG = (0, 0, 0)
 	FONT_COLOR = (255, 255, 255)
@@ -15,16 +15,23 @@ class Board():
 
 		pygame.init()
 
-		self.font = pygame.font.SysFont("times new roman", 20)
+		self.font = pygame.font.SysFont("Arial", 20)
 
 		self.arena = Arena(arena_size)
 		self.window = pygame.display.set_mode((self.arena.get_width() + 20, self.arena.get_height() + 70))
-		self.arena.link_parent(self.window.subsurface([10, self.HUD_HEIGHT + 10, self.arena.get_width(), self.arena.get_height()]))
+		self.arena.link_parent(
+			self.window.subsurface([10, self.HUD_HEIGHT + 10, self.arena.get_width(), self.arena.get_height()]))
 		self.arena.generate_apple()
 		self.arena.display_arena()
 
 		self.hud = Hud()
 		self.hud.link_parent(self.window.subsurface([0, 0, self.window.get_width(), self.HUD_HEIGHT]))
+
+		self.game_over_lines = [
+			self.font.render("Your score: " + str(self.hud.score), True, self.FONT_COLOR),
+			self.font.render("You lose", True, self.FONT_COLOR),
+			self.font.render("Press R to restart or Q to exit", True, self.FONT_COLOR)
+		]
 
 		pygame.display.update()
 		pygame.display.set_caption(caption)
@@ -32,7 +39,9 @@ class Board():
 	def reset(self):
 		self.window.fill(self.DEFAULT_BCKG)
 		self.arena = Arena(self.arena.size)
-		self.arena.link_parent(self.window.subsurface([10, self.HUD_HEIGHT + 10, self.arena.get_width(), self.arena.get_height()]))
+		self.arena.link_parent(self.window.subsurface(
+			[10, self.HUD_HEIGHT + 10, self.arena.get_width(), self.arena.get_height()]
+		))
 		self.arena.generate_apple()
 		self.arena.display_arena()
 
@@ -75,16 +84,7 @@ class Board():
 		return False
 
 	def display_game_over(self):
-		game_over_1 = self.font.render("Your score: " + str(self.hud.score), False, self.FONT_COLOR)
-		game_over_2 = self.font.render("You lose", False, self.FONT_COLOR)
-		game_over_3 = self.font.render("Press R to restart or Q to exit", False, self.FONT_COLOR)
-		self.window.blit(game_over_1, 
-			[self.window.get_width() // 2 - game_over_1.get_width() // 2,
-			self.window.get_height() // 2 - game_over_2.get_height() // 2 - game_over_1.get_height() - 10])
-		self.window.blit(game_over_2, 
-			[self.window.get_width() // 2 - game_over_2.get_width() // 2,
-			self.window.get_height() // 2 - game_over_2.get_height() // 2])
-		self.window.blit(game_over_3, 
-			[self.window.get_width() // 2 - game_over_3.get_width() // 2,
-			self.window.get_height() // 2 + game_over_2.get_height() // 2 + 10])
+		for count, line in enumerate(self.game_over_lines):
+			center_pos = (self.window.get_width()/2, self.window.get_height()/2-100+count*20)
+			self.window.blit(line, line.get_rect(center=center_pos))
 		pygame.display.update()
