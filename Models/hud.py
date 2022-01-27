@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
-import pygame
+__version__ = "1.0.0"
+__author__ = "Valentin 'Ookamiko' Dewilde"
 
+import pygame
 
 class Hud:
     SCR_COLOR = (255, 255, 255)
@@ -18,7 +20,9 @@ class Hud:
 
     def update_hud(self):
         self.surface.fill(self.DEFAULT_BCKG)
-        score = self.font.render("Your Score: " + str(self.score), True, self.SCR_COLOR)
+        score = self.font.render(
+            "Your Score: " + str(self.score), 
+            True, self.SCR_COLOR)
         self.surface.blit(score, [10, 10])
 
     def increase_score(self, point):
