@@ -27,12 +27,6 @@ class Board:
 		self.hud = Hud()
 		self.hud.link_parent(self.window.subsurface([0, 0, self.window.get_width(), self.HUD_HEIGHT]))
 
-		self.game_over_lines = [
-			self.font.render("Your score: " + str(self.hud.score), True, self.FONT_COLOR),
-			self.font.render("You lose", True, self.FONT_COLOR),
-			self.font.render("Press R to restart or Q to exit", True, self.FONT_COLOR)
-		]
-
 		pygame.display.update()
 		pygame.display.set_caption(caption)
 
@@ -84,7 +78,14 @@ class Board:
 		return False
 
 	def display_game_over(self):
-		for count, line in enumerate(self.game_over_lines):
+		
+		game_over_lines = [
+			self.font.render("Your score: " + str(self.hud.score), True, self.FONT_COLOR),
+			self.font.render("You lose", True, self.FONT_COLOR),
+			self.font.render("Press R to restart or Q to exit", True, self.FONT_COLOR)
+		]
+
+		for count, line in enumerate(game_over_lines):
 			center_pos = (self.window.get_width()/2, self.window.get_height()/2-100+count*20)
 			self.window.blit(line, line.get_rect(center=center_pos))
 		pygame.display.update()
