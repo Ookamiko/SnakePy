@@ -7,7 +7,7 @@ import pygame
 
 from Models.board import Board
 
-board = Board("Snake Game - " + __version__, 50)
+board = Board("Snake Game - " + __version__, 30)
 clock = pygame.time.Clock()
 game_over = False
 finish = False
