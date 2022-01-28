@@ -17,7 +17,7 @@ class Snake:
     def __init__(self, arena_size):
         self.arena_size = arena_size
         start_pos = arena_size // 2 * (arena_size+1)
-        self.snake_pos = [start_pos, start_pos-1, start_pos-2]
+        self.snake_pos = [pos for pos in range(start_pos, start_pos-3, -1)]
         self.move_modif = 0
         self.head_orientation = self.M_RIGHT
         self.tail_orientation = self.M_RIGHT
@@ -26,6 +26,7 @@ class Snake:
 
     def increase(self, tail):
         self.snake_pos.append(tail)
+        self.update_tail_orientation()
 
     def update_move_modif(self, new_modif):
         if (new_modif == self.M_LEFT
