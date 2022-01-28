@@ -3,12 +3,16 @@
 __version__ = "1.0.0"
 __author__ = "Valentin 'Ookamiko' Dewilde"
 
+import pygame
+
 class Snake:
 
-    M_LEFT = 1
+    M_RIGHT = 1
     M_UP = 2
-    M_RIGHT = 4
-    M_DOWN = 8
+    M_LEFT = 3
+    M_DOWN = 4
+
+    ASSET_SIZE = 15
 
     def __init__(self, arena_size):
         self.arena_size = arena_size
@@ -17,6 +21,8 @@ class Snake:
         self.move_modif = 0
         self.head_orientation = self.M_RIGHT
         self.tail_orientation = self.M_RIGHT
+        self.asset = pygame.image.load("Assets/snake.png")
+        self.normal_ondulation = True
 
     def increase(self, tail):
         self.snake_pos.append(tail)
@@ -70,3 +76,74 @@ class Snake:
                 self.tail_orientation = self.M_LEFT
             else:
                 self.tail_orientation = self.M_UP
+
+    def get_asset_part(self, indice):
+        x = self.ASSET_SIZE
+        y = self.ASSET_SIZE
+
+        if indice == 0:
+            # Head
+            x *= 3
+            y *= (self.head_orientation-1)
+        elif indice == len(self.snake_pos)-1:
+            # Tail
+            x = 0
+            y *= (self.tail_orientation-1)
+        else:
+            # Body
+            part_pos = self.snake_pos[indice]
+            ahead_pos = self.snake_pos[indice-1]
+            behind_pos = self.snake_pos[indice+1]
+
+            # Check if ahead and behind part are aline
+            if (behind_pos%self.arena_size == ahead_pos%self.arena_size
+                or behind_pos//self.arena_size == ahead_pos//self.arena_size):
+                
+                if self.normal_ondulation:
+                    x *= (1 + indice%2)
+                else:
+                    x *= (2 - indice%2)
+
+                # Check orientation
+                if behind_pos-part_pos < 0:
+                    if behind_pos-part_pos == -1:
+                        y = 0
+                    else:
+                        y *= 3
+                else:
+                    if behind_pos-part_pos == 1:
+                        y *= 2
+
+            # Check if behind part is to the left of the ahead part
+            elif behind_pos%self.arena_size < ahead_pos%self.arena_size:
+                # Check orientation
+                if behind_pos-part_pos == -1:
+                    if ahead_pos-part_pos == self.arena_size:
+                        x *= 4
+                        y *= 3
+                    else:
+                        x *= 5
+                        y *= 2
+                else:
+                    if behind_pos-part_pos == self.arena_size:
+                        x *= 4
+                        y = 0
+                    else:
+                        x *= 5
+            else:
+                # Check orientation
+                if behind_pos-part_pos == 1:
+                    if ahead_pos-part_pos == self.arena_size:
+                        x *= 5
+                        y = 0
+                    else:
+                        x *= 4
+                else:
+                    if behind_pos-part_pos == self.arena_size:
+                        x *= 5
+                        y *= 3
+                    else:
+                        x *= 4
+                        y *= 2
+
+        return [x, y, self.ASSET_SIZE, self.ASSET_SIZE]

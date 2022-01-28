@@ -10,8 +10,8 @@ from Models.snake import Snake
 
 
 class Arena:
-    ASQR_SIZE = 12
-    TILE_SIZE = 10
+    ASQR_SIZE = 15
+    TILE_SIZE = 15
     BDR_SIZE = 1
     BDR_COLOR = SNAKE_COLOR = (255, 255, 255)
     APPLE_COLOR = (255, 0, 0)
@@ -85,13 +85,16 @@ class Arena:
              self.TILE_SIZE])
 
         # render snake
-        for pos in self.snake.snake_pos:
-            pygame.draw.rect(
-                self.surface, self.SNAKE_COLOR,
-                [self.BDR_SIZE + (pos%self.size) * self.ASQR_SIZE + 1,
-                 self.BDR_SIZE + (pos//self.size) * self.ASQR_SIZE + 1,
-                 self.TILE_SIZE,
-                 self.TILE_SIZE])
+        for i in range(len(self.snake.snake_pos)):
+            pos = self.snake.snake_pos[i]
+            self.surface.blit(
+                self.snake.asset,
+                (self.BDR_SIZE + (pos%self.size) * self.ASQR_SIZE,
+                 self.BDR_SIZE + (pos//self.size) * self.ASQR_SIZE),
+                self.snake.get_asset_part(i)
+                )
+
+        self.snake.normal_ondulation = not(self.snake.normal_ondulation)
 
     def get_width(self):
         return self.size*self.ASQR_SIZE + self.BDR_SIZE*2
