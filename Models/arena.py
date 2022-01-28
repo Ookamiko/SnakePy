@@ -21,6 +21,7 @@ class Arena:
     def __init__(self, size):
         self.size = max(size, 5)
         self.apple_pos = -1
+        self.apple_asset = pygame.image.load("Assets/apple.png")
         self.snake = Snake(size)
         self.surface = None
 
@@ -77,12 +78,9 @@ class Arena:
         self.empty_arena()
 
         # render apple
-        pygame.draw.rect(
-            self.surface, self.APPLE_COLOR,
-            [self.BDR_SIZE + (self.apple_pos%self.size) * self.ASQR_SIZE + 1,
-             self.BDR_SIZE + (self.apple_pos//self.size) * self.ASQR_SIZE + 1,
-             self.TILE_SIZE,
-             self.TILE_SIZE])
+        self.surface.blit(self.apple_asset, 
+            [self.BDR_SIZE + (self.apple_pos%self.size) * self.ASQR_SIZE,
+             self.BDR_SIZE + (self.apple_pos//self.size) * self.ASQR_SIZE])
 
         # render snake
         for i in range(len(self.snake.snake_pos)):
