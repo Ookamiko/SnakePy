@@ -5,9 +5,9 @@ __author__ = "Valentin 'Ookamiko' Dewilde"
 
 import pygame
 
-from Models.snake import Snake
-from Models.hud import Hud
-from Models.arena import Arena
+from models.snake import Snake
+from models.hud import Hud
+from models.arena import Arena
 
 
 class Board:

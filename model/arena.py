@@ -6,7 +6,7 @@ __author__ = "Valentin 'Ookamiko' Dewilde"
 import pygame
 import random
 
-from Models.snake import Snake
+from models.snake import Snake
 
 
 class Arena:
