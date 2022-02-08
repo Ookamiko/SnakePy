@@ -4,6 +4,8 @@ __version__ = "1.0.0"
 __author__ = "Valentin 'Ookamiko' Dewilde"
 
 import pygame
+import os
+import numpy as np
 
 from models.snake import Snake
 from models.hud import Hud
@@ -15,16 +17,24 @@ class Board:
     DEFAULT_BCKG = (0, 0, 0)
     FONT_COLOR = (255, 255, 255)
 
-    def __init__(self, caption, arena_size):
+    def __init__(self, caption, arena_size, use_ai=False):
 
         pygame.init()
 
         self.font = pygame.font.SysFont("Arial", 20)
-        self.arena = Arena(arena_size)
-        self.hud = Hud()
+        self.arena = Arena(arena_size, use_ai=use_ai)
+        self.hud = Hud(use_ai=use_ai)
+        self.use_ai = use_ai
+
+        if use_ai:
+            self.apple_take = 0
+            self.move_left = 100
+            self.move_made = 0
+            self.hud.step = 100
 
         self.window = pygame.display.set_mode(
-            (self.arena.get_width() + 20, self.arena.get_height() + 70))
+            (max(247, self.arena.get_width() + 20),
+             max(297, self.arena.get_height() + 70)))
 
         self.arena.link_parent(
             self.window.subsurface(
@@ -44,10 +54,11 @@ class Board:
         pygame.display.update()
         pygame.display.set_caption(caption)
 
-    def reset(self):
+    def reset(self, generation=None, organism=None):
+
         self.window.fill(self.DEFAULT_BCKG)
 
-        self.arena = Arena(self.arena.size)
+        self.arena = Arena(self.arena.size, use_ai=self.use_ai)
         self.arena.link_parent(
             self.window.subsurface(
                 [10,
@@ -58,11 +69,17 @@ class Board:
         self.arena.generate_apple()
         self.arena.display_arena()
 
-        self.hud = Hud()
+        self.hud = Hud(use_ai=self.use_ai, gen=generation, org=organism)
         self.hud.link_parent(
             self.window.subsurface(
                 [0, 0, self.window.get_width(), self.HUD_HEIGHT]
         ))
+
+        if self.use_ai:
+            self.apple_take = 0
+            self.move_made = 0
+            self.move_left = self.arena.size**2
+            self.hud.update_step_left(self.move_left)
 
         pygame.display.update()
 
@@ -80,9 +97,12 @@ class Board:
     def next_step(self):
         # Move snake
         tail_pos = self.arena.snake.move_snake()
+        if self.use_ai:
+            self.move_left -= 1
+            self.move_made += 1
 
         # Check lose
-        if self.arena.has_lose():
+        if self.arena.has_lose() or (self.use_ai and self.move_left == 0):
             self.arena.snake.snake_pos.pop(0)
             self.arena.display_arena()
             pygame.display.update()
@@ -94,6 +114,11 @@ class Board:
             self.arena.generate_apple()
             self.hud.increase_score(Arena.APPLE_POINT)
 
+            if self.use_ai:
+                self.move_left += self.arena.size**2 * 0.75
+                self.apple_take += 1
+
+        self.hud.update_step_left(self.move_left)
         self.arena.display_arena()
         pygame.display.update()
 
@@ -116,3 +141,27 @@ class Board:
             self.window.blit(line, line.get_rect(center=center_pos))
             
         pygame.display.update()
+
+    def get_fitness(self):
+        return max(0.0001, self.move_made
+            + (2**self.apple_take + (self.apple_take**2.1) * 500)
+            - (self.apple_take**1.2 * (0.25*self.move_made)**1.3))
+
+    def save_stats(self, stats, gen, file="stats.txt"):
+        if not(os.path.exists("stats\\" + file)):
+            f = open("stats\\" + file, "w")
+            f.write("|Max Apple|Mean Apple|Max Step|Mean Step|" +
+                "Max Fitness|Mean Fitness\n")
+            f.close()
+
+        f = open("stats\\" + file, "a")
+
+        f.write("Generation " + str(gen) + "|" +
+            str(np.max(stats["apple"])) + "|" +
+            str(np.mean(stats["apple"])) + "|" +
+            str(np.max(stats["step"])) + "|" +
+            str(np.mean(stats["step"])) + "|" +
+            str(np.max(stats["fitness"])) + "|" +
+            str(np.mean(stats["fitness"])) + "\n")
+
+        f.close()

@@ -18,11 +18,11 @@ class Arena:
     DEFAULT_BCKG = (0, 0, 0)
     APPLE_POINT = 10
 
-    def __init__(self, size):
+    def __init__(self, size, use_ai=False):
         self.size = max(size, 5)
         self.apple_pos = -1
         self.apple_asset = pygame.image.load("Assets/apple.png")
-        self.snake = Snake(size)
+        self.snake = Snake(size, use_ai)
         self.surface = None
 
     def empty_arena(self):
@@ -99,3 +99,150 @@ class Arena:
 
     def get_height(self):
         return self.size*self.ASQR_SIZE + self.BDR_SIZE*2
+
+    def get_ai_input(self):
+        result = [0] * 32
+
+        apple_view_index = 8
+        wall_view_index = apple_view_index + 8
+        body_view_index = wall_view_index + 8
+
+        result[self.snake.head_orientation] = 1
+        result[self.snake.tail_orientation+4] = 1
+
+        dist = 0
+        direction_checked = 0
+        head_pos = self.snake.snake_pos[0]
+
+        while direction_checked != 255:
+            dist += 1
+
+            # Check up
+            if not(direction_checked & 1):
+                pos = head_pos - dist*self.size
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif pos < 0:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index] = 1 / dist
+                    direction_checked |= 1
+
+            # Check upper right
+            if not(direction_checked & 2):
+                pos = head_pos - dist*(self.size - 1)
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif pos < 0 or (pos%self.size) == 0:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+1] = 1 / dist
+                    direction_checked |= 2
+
+            # Check right
+            if not(direction_checked & 4):
+                pos = head_pos - dist*-1
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif (pos%self.size) == 0:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+2] = 1 / dist
+                    direction_checked |= 4
+
+            # Check bottom right
+            if not(direction_checked & 8):
+                pos = head_pos - dist*(-self.size-1)
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif pos >= self.size**2 or (pos%self.size) == 0:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+3] = 1 / dist
+                    direction_checked |= 8
+
+            # Check down
+            if not(direction_checked & 16):
+                pos = head_pos - dist*-self.size
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif pos >= self.size**2:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+4] = 1 / dist
+                    direction_checked |= 16
+
+            # Check bottom left
+            if not(direction_checked & 32):
+                pos = head_pos - dist*(-self.size+1)
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif pos >= self.size**2 or (pos%self.size) == self.size-1:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+5] = 1 / dist
+                    direction_checked |= 32
+
+            # Check left
+            if not(direction_checked & 64):
+                pos = head_pos - dist
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif (pos%self.size) == self.size-1:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+6] = 1 / dist
+                    direction_checked |= 64
+
+            # Check upper left
+            if not(direction_checked & 128):
+                pos = head_pos - dist*(self.size+1)
+
+                index = None
+                if pos == self.apple_pos:
+                    index = apple_view_index
+                elif pos in self.snake.snake_pos:
+                    index = body_view_index
+                elif pos < 0 or (pos%self.size) == self.size-1:
+                    index = wall_view_index
+
+                if index is not None:
+                    result[index+7] = 1 / dist
+                    direction_checked |= 128
+
+        return [result]

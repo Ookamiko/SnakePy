@@ -4,25 +4,33 @@ __version__ = "1.1.0"
 __author__ = "Valentin 'Ookamiko' Dewilde"
 
 import pygame
+import random
 
 class Snake:
 
-    M_RIGHT = 1
-    M_UP = 2
-    M_LEFT = 3
-    M_DOWN = 4
+    M_RIGHT = 0
+    M_UP = 1
+    M_LEFT = 2
+    M_DOWN = 3
 
     ASSET_SIZE = 15
 
-    def __init__(self, arena_size):
+    def __init__(self, arena_size, use_ai=False):
         self.arena_size = arena_size
-        start_pos = arena_size // 2 * (arena_size+1)
-        self.snake_pos = [pos for pos in range(start_pos, start_pos-3, -1)]
         self.move_modif = 0
-        self.head_orientation = self.M_RIGHT
-        self.tail_orientation = self.M_RIGHT
         self.asset = pygame.image.load("Assets/snake.png")
         self.normal_ondulation = True
+
+        if use_ai:
+            self.snake_pos = [random.randrange(arena_size**2 - 1)]
+            self.head_orientation = random.randrange(3)
+            self.tail_orientation = self.head_orientation
+            self.update_move_modif(self.head_orientation)
+        else:
+            start_pos = arena_size // 2 * (arena_size+1)
+            self.head_orientation = self.M_RIGHT
+            self.tail_orientation = self.M_RIGHT
+            self.snake_pos = [pos for pos in range(start_pos, start_pos-3, -1)]
 
     def increase(self, tail):
         self.snake_pos.append(tail)
@@ -85,11 +93,11 @@ class Snake:
         if indice == 0:
             # Head
             x *= 3
-            y *= (self.head_orientation-1)
+            y *= (self.head_orientation)
         elif indice == len(self.snake_pos)-1:
             # Tail
             x = 0
-            y *= (self.tail_orientation-1)
+            y *= (self.tail_orientation)
         else:
             # Body
             part_pos = self.snake_pos[indice]
