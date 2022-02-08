@@ -1,0 +1,3 @@
+[submodule "jormungandr"]
+	path = jormungandr
+	url = https://github.com/Ookamiko/EvolutionalNeuralNetwork.git
